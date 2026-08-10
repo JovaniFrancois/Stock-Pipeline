@@ -18,14 +18,20 @@ cur.execute("""
     CREATE TABLE IF NOT EXISTS raw_prices (
         date DATE,
         ticker TEXT,
-        close NUMERIC
+        close NUMERIC,
+        UNIQUE (date, ticker)
     )
 """)
 
 for ticker in tickers:
     for date, row in data["Close"][ticker].dropna().items():
         cur.execute(
-            "INSERT INTO raw_prices (date, ticker, close) VALUES (%s, %s, %s)",
+            """
+            INSERT INTO raw_prices (date, ticker, close)
+            VALUES (%s, %s, %s)
+            ON CONFLICT (date, ticker)
+            DO UPDATE SET close = EXCLUDED.close
+            """,
             (date.date(), ticker, float(row))
         )
 
