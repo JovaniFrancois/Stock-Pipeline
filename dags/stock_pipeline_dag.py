@@ -11,12 +11,14 @@ with DAG(
 
     fetch_prices = BashOperator(
         task_id="fetch_prices",
-        bash_command="python /opt/airflow/dags/../ingestion/fetch_prices.py"
+        bash_command="python /opt/airflow/ingestion/fetch_prices.py",
+        env={"DB_HOST": "host.docker.internal"}
     )
 
     dbt_run = BashOperator(
         task_id="dbt_run",
-        bash_command="cd /opt/airflow/dags/../dbt_project && dbt run"
+        bash_command="cd /opt/airflow/dbt_project && echo DB_HOST_IS: $DB_HOST && /home/airflow/.local/bin/dbt run --no-partial-parse",
+        env={"DB_HOST": "host.docker.internal"}
     )
 
     fetch_prices >> dbt_run

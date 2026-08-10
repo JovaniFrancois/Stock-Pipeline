@@ -1,11 +1,12 @@
 import yfinance as yf
 import psycopg2
+import os
 
 tickers = ["AAPL", "MSFT", "NVDA", "TSLA"]
 data = yf.download(tickers, period="1mo", interval="1d")
 
 conn = psycopg2.connect(
-    host="localhost",
+    host=os.environ.get("DB_HOST", "localhost"),
     port=5432,
     dbname="stockdata",
     user="stockuser",
